@@ -2,10 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import HelloWorlApp from "./HelloWorldApp";
 import FirstApp from "./FirstApp";
+import CounterApp from "./CounterApp";
+import "./styles/styles.min.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <HelloWorlApp />
-        <FirstApp />
+        <CounterApp value={1234} />
     </React.StrictMode>
 );
