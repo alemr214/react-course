@@ -1,0 +1,8 @@
+import { createRoot } from "react-dom/client";
+import FirstStepsApp from "./FirstStepsApp";
+
+createRoot(document.getElementById("root")!).render(
+    <>
+        <FirstStepsApp />
+    </>
+);
