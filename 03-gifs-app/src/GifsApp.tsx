@@ -5,20 +5,26 @@ import { SearchBar } from "./shared/components/SearchBar";
 import { mockGifs } from "./mock-data/mockGifs";
 import { useState } from "react";
 
-const handlePreviousSearch = (item: string) => {
-    console.log("Search for:", item);
-};
-
-const handleSearch = (query: string) => {
-    console.log("Searching for:", query);
-};
-
 export const GifsApp = () => {
     const [previousSearches, setPreviousSearches] = useState([
         "Cats",
         "Dogs",
         "Memes",
     ]);
+
+    const handlePreviousSearch = (item: string) => {
+        console.log("Search for:", item);
+    };
+
+    const handleSearch = (query: string) => {
+        const normalizedQuery = query.trim().toLowerCase();
+
+        if (query.length === 0) return;
+
+        if (previousSearches.includes(normalizedQuery)) return;
+
+        setPreviousSearches((prev) => [normalizedQuery, ...prev.splice(0, 8)]);
+    };
 
     return (
         <>

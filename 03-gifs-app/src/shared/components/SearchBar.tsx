@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Props {
     type: string;
@@ -16,6 +16,17 @@ export const SearchBar = ({
 }: Props) => {
     // To control the input value
     const [query, setQuery] = useState("");
+
+    // To implement the debounce
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            onQuery(query);
+        }, 1000);
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [query, onQuery]);
 
     // To pass as a reference in the call and clean the input
     const handleSearch = () => {
