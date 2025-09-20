@@ -5,13 +5,13 @@ import { SearchBar } from "./shared/components/SearchBar";
 import { mockGifs } from "./mock-data/mockGifs";
 import { useState } from "react";
 import { getGifByQuery } from "./gifs/actions/get-gif-by-query.action";
+import type { Gif } from "./gifs/interfaces/gif.interface";
+
+const MAX_PREVIOUS_SEARCHES = 8;
 
 export const GifsApp = () => {
-    const [previousSearches, setPreviousSearches] = useState([
-        "Cats",
-        "Dogs",
-        "Memes",
-    ]);
+    const [previousSearches, setPreviousSearches] = useState<string[]>([]);
+    const [gifs, setGifs] = useState<Gif[]>(mockGifs);
 
     const handlePreviousSearch = (item: string) => {
         console.log("Search for:", item);
@@ -24,13 +24,14 @@ export const GifsApp = () => {
 
         if (previousSearches.includes(normalizedQuery)) return;
 
-        setPreviousSearches((prev) => [normalizedQuery, ...prev.splice(0, 8)]);
+        setPreviousSearches((prev) => [
+            normalizedQuery,
+            ...prev.slice(0, MAX_PREVIOUS_SEARCHES),
+        ]);
 
         const gifs = await getGifByQuery(normalizedQuery);
-
-        console.log(gifs);
+        setGifs(gifs);
     };
-
     return (
         <>
             {/* Header */}
@@ -55,7 +56,7 @@ export const GifsApp = () => {
             />
 
             {/* Gifs Grid */}
-            <GifsGrid gifs={mockGifs} />
+            <GifsGrid gifs={gifs} />
         </>
     );
 };
