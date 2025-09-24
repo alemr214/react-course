@@ -6,8 +6,15 @@ const colors = {
     green: "bg-green-500 animate-pulse",
 };
 
+// Definimos un tipo que representa los colores posibles del semáforo
+type TrafficLightColor = keyof typeof colors;
+
 export const TrafficLight = () => {
-    const [light, setLight] = useState("red");
+    const [light, setLight] = useState<TrafficLightColor>("red");
+
+    const handleChangeLight = (color: TrafficLightColor) => {
+        setLight(color);
+    };
 
     return (
         <div className='min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center p-4'>
@@ -32,19 +39,19 @@ export const TrafficLight = () => {
                 <div className='flex gap-2'>
                     <button
                         className='bg-red-500 text-white px-4 py-2 rounded-md cursor-pointer'
-                        onClick={() => setLight("red")}
+                        onClick={() => handleChangeLight("red")}
                     >
                         Rojo
                     </button>
                     <button
                         className='bg-yellow-500 text-white px-4 py-2 rounded-md cursor-pointer'
-                        onClick={() => setLight("yellow")}
+                        onClick={() => handleChangeLight("yellow")}
                     >
                         Amarillo
                     </button>
                     <button
                         className='bg-green-500 text-white px-4 py-2 rounded-md cursor-pointer'
-                        onClick={() => setLight("green")}
+                        onClick={() => handleChangeLight("green")}
                     >
                         Verde
                     </button>
