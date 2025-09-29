@@ -3,10 +3,10 @@ interface ScrambleWordsState {
     errorCounter: number;
     guess: string;
     isGameOver: boolean;
-    maxAllowError: number;
+    maxAllowErrors: number;
     maxSkips: number;
     points: number;
-    scrambleWord: string;
+    scrambledWord: string;
     skipCounter: number;
     words: string[];
     totalWords: number;
@@ -24,7 +24,7 @@ const scrambleWord = (word: string = "") => {
         .join("");
 };
 
-const GAME_WORDS = [
+export const GAME_WORDS = [
     "REACT",
     "JAVASCRIPT",
     "TYPESCRIPT",
@@ -52,25 +52,79 @@ export const getInitialState = (): ScrambleWordsState => {
         errorCounter: 0,
         guess: "",
         isGameOver: false,
-        maxAllowError: 3,
+        maxAllowErrors: 3,
         maxSkips: 3,
         points: 0,
-        scrambleWord: scrambleWord(shuffleWords[0]),
+        scrambledWord: scrambleWord(shuffleWords[0]),
         skipCounter: 0,
         words: shuffleWords,
         totalWords: shuffleWords.length,
     };
 };
 
-export type ScrableWordsAction = {
-    type: "SET_CURRENT_WORD";
-};
+export type ScrableWordsAction =
+    | {
+          type: "SET_GUESS";
+          payload: string;
+      }
+    | {
+          type: "CHECK_ANSWER";
+      }
+    | {
+          type: "SKIP_WORD";
+      }
+    | {
+          type: "RESET_GAME";
+      };
 
 export const scrambleWordReducer = (
     state: ScrambleWordsState,
     action: ScrableWordsAction
-) => {
+): ScrambleWordsState => {
     switch (action.type) {
+        case "SET_GUESS": {
+            return {
+                ...state,
+                guess: action.payload.trim().toUpperCase(),
+            };
+        }
+        case "CHECK_ANSWER": {
+            if (state.currentWord === state.guess) {
+                const newWords = state.words.slice(1);
+                return {
+                    ...state,
+                    words: newWords,
+                    points: state.points + 1,
+                    currentWord: newWords[0],
+                    scrambledWord: scrambleWord(newWords[0]),
+                    guess: "",
+                };
+            }
+            return {
+                ...state,
+                errorCounter: state.errorCounter + 1,
+                isGameOver: state.errorCounter + 1 >= state.maxAllowErrors,
+                guess: "",
+            };
+        }
+
+        case "SKIP_WORD": {
+            if (state.skipCounter >= state.maxSkips) {
+                return state;
+            }
+            return {
+                ...state,
+                skipCounter: state.skipCounter + 1,
+                words: state.words.slice(1),
+                currentWord: state.words[0],
+                scrambledWord: scrambleWord(state.words[0]),
+                guess: "",
+            };
+        }
+        case "RESET_GAME": {
+            return getInitialState();
+        }
+
         default:
             return state;
     }

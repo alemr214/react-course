@@ -2,7 +2,7 @@
 // Es necesario componentes de Shadcn/ui
 // https://ui.shadcn.com/docs/installation/vite
 
-import React, { useReducer, useState } from "react";
+import React, { useReducer } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { SkipForward, Play } from "lucide-react";
 import {
     getInitialState,
     scrambleWordReducer,
+    GAME_WORDS,
 } from "./reducers/scrambleWordReducer";
 
 // Esta función mezcla el arreglo para que siempre sea aleatorio
@@ -19,75 +20,32 @@ export const ScrambleWords = () => {
         getInitialState()
     );
 
-    const [words, setWords] = useState(shuffleArray(GAME_WORDS));
-
-    const [currentWord, setCurrentWord] = useState(words[0]);
-    const [scrambledWord, setScrambledWord] = useState(
-        scrambleWord(currentWord)
-    );
-    const [guess, setGuess] = useState("");
-    const [points, setPoints] = useState(0);
-    const [errorCounter, setErrorCounter] = useState(0);
-    const [maxAllowErrors, setMaxAllowErrors] = useState(3);
-
-    const [skipCounter, setSkipCounter] = useState(0);
-    const [maxSkips, setMaxSkips] = useState(3);
-
-    const [isGameOver, setIsGameOver] = useState(false);
+    const {
+        currentWord,
+        scrambledWord,
+        guess,
+        points,
+        errorCounter,
+        maxAllowErrors,
+        maxSkips,
+        skipCounter,
+        isGameOver,
+        words,
+    } = state;
 
     const handleGuessSubmit = (e: React.FormEvent) => {
         // Previene el refresh de la página
         e.preventDefault();
-        // Implementar lógica de juego
-
-        // Contar error si la palabra es incorrecta
-        if (guess !== currentWord) {
-            setErrorCounter(errorCounter + 1);
-            return;
-        }
-
-        // Finalizar si se llega al máximo de errores permitidos
-        if (errorCounter >= maxAllowErrors) {
-            setIsGameOver(true);
-            return;
-        }
-
-        // Si la adivinanza es correcta, sumar punto y cargar nueva palabra
-        if (guess === currentWord) {
-            setPoints(points + 1);
-            const remainingWords = words.filter((word) => word !== currentWord);
-            setWords(shuffleArray(remainingWords));
-            setCurrentWord(remainingWords[0]);
-            setScrambledWord(scrambleWord(remainingWords[0]));
-            setGuess("");
-            return;
-        }
-
-        console.log("Intento de adivinanza:", guess, currentWord);
+        dispatch({ type: "CHECK_ANSWER" });
     };
 
     const handleSkip = () => {
-        if (skipCounter >= maxSkips) return;
-        setWords(shuffleArray(words));
-        setCurrentWord(words[0]);
-        setScrambledWord(scrambleWord(words[0]));
-        setGuess("");
-        setSkipCounter(skipCounter + 1);
-
+        dispatch({ type: "SKIP_WORD" });
         console.log("Palabra saltada");
     };
 
     const handlePlayAgain = () => {
-        setWords(shuffleArray(GAME_WORDS));
-        setCurrentWord(words[0]);
-        setScrambledWord(scrambleWord(words[0]));
-        setMaxAllowErrors(3);
-        setMaxSkips(3);
-        setGuess("");
-        setPoints(0);
-        setErrorCounter(0);
-        setSkipCounter(0);
-        setIsGameOver(false);
+        dispatch({ type: "RESET_GAME" });
     };
 
     //! Si ya no hay palabras para jugar, se muestra el mensaje de fin de juego
@@ -176,11 +134,11 @@ export const ScrambleWords = () => {
                                         type='text'
                                         value={guess}
                                         onChange={(e) =>
-                                            setGuess(
-                                                e.target.value
-                                                    .toUpperCase()
-                                                    .trim()
-                                            )
+                                            dispatch({
+                                                type: "SET_GUESS",
+                                                payload:
+                                                    e.target.value.toUpperCase(),
+                                            })
                                         }
                                         placeholder='Ingresa tu palabra...'
                                         className='text-center text-lg font-semibold h-12 border-2 border-indigo-200 focus:border-indigo-500 transition-colors'
